@@ -1,14 +1,5 @@
 package CS349BankAccount;
 
-//This code gives the layout for the UI and
-//demonstrates two ways of updating the data
-//in a JTable.
-//Another option to consider when using JTable is
-//creating your own data model by overriding
-//AbstractTableModel. You might use this option
-//if data for table was coming from say a DB.
-//One example: http://www.java2s.com/Code/Java/Swing-JFC/CreatingsimpleJTableusingAbstractTableModel.htm
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,9 +9,6 @@ import javax.swing.table.DefaultTableModel;
 
 public class AccountTransactionLayout extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private JTable table;
@@ -30,7 +18,8 @@ public class AccountTransactionLayout extends JFrame {
 
 	private String[] columnNames = { "Account ID", "Account Name", "Balance" };
 	private Object[][] data = { { new Integer(3), "Savings", new Integer(500) },
-			{ new Integer(4), "Checking", new Integer(270) } };
+			{ new Integer(4), "Checking", new Integer(270) },
+			{ new Integer(5), "Retirement", new Integer(1000)}};
 
 	public AccountTransactionLayout() {
 		Container contentPane = getContentPane();
@@ -38,8 +27,6 @@ public class AccountTransactionLayout extends JFrame {
 
 		DefaultTableModel dtm = new DefaultTableModel(data, columnNames);
 		table = new JTable(dtm);
-		// The default size of a JTable is something like
-		// 450 X 400.
 		Dimension smallerSize = new Dimension(450, 50);
 		table.setPreferredScrollableViewportSize(smallerSize);
 
@@ -59,7 +46,6 @@ public class AccountTransactionLayout extends JFrame {
 		contentPane.add(scrollPaneForTable, constraints);
 
 		constraints.gridx = 0;
-		// constraints.gridy = 1;
 		constraints.weighty = 0;
 		constraints.gridy = GridBagConstraints.RELATIVE;
 		constraints.insets = new Insets(2, 4, 2, 4);
@@ -78,38 +64,33 @@ public class AccountTransactionLayout extends JFrame {
 		contentPane.add(fromField, constraints);
 
 		constraints.gridx = 0;
-		// constraints.gridy = 2;
 		constraints.anchor = GridBagConstraints.NORTHEAST;
 		JLabel fromLabel = new JLabel("To:");
 		contentPane.add(fromLabel, constraints);
 
 		constraints.gridx = 1;
-		// constraints.gridy = 2;
 		constraints.anchor = GridBagConstraints.NORTHWEST;
 		toField = new JTextField("", 8);
 		toField.setMinimumSize(toField.getPreferredSize());
 		contentPane.add(toField, constraints);
 
 		constraints.gridx = 0;
-		// constraints.gridy = 2;
 		constraints.anchor = GridBagConstraints.NORTHEAST;
 		JLabel amountLabel = new JLabel("Amount:");
 		contentPane.add(amountLabel, constraints);
 
 		constraints.gridx = 1;
-		// constraints.gridy = 2;
 		constraints.anchor = GridBagConstraints.NORTHWEST;
 		amountField.setMinimumSize(amountField.getPreferredSize());
 		contentPane.add(amountField, constraints);
 
 		constraints.gridx = 0;
-		// constraints.gridy = 2;
 		constraints.anchor = GridBagConstraints.NORTHEAST;
 		JButton clearButton = new JButton("Clear");
 		contentPane.add(clearButton, constraints);
 		clearButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				fromField.setText("");
 				toField.setText("");
 				amountField.setText("");
@@ -123,14 +104,36 @@ public class AccountTransactionLayout extends JFrame {
 		transferButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				Object[][] newData = { { new Integer(3), "Savings", new Integer(400) },
-						{ new Integer(4), "Checking", new Integer(370) } };
-				// Example of how to change the table model of an
-				// existing JTable
-				table.setModel(new DefaultTableModel(newData, columnNames));
+			public void actionPerformed(ActionEvent evt) {
+				String toString, fromString, amountString;
+				int to, from, amount;
+				Boolean transferred;
+				AccountManager mngr = null;
 
-			}
+				try {
+				    toString = toField.getText();
+				    fromString = fromField.getText();
+				    amountString = amountField.getText();
+
+				    to = Integer.parseInt(toString);
+				    from = Integer.parseInt(fromString);
+				    amount = Integer.parseInt(amountString);
+
+				    transferred =  mngr.transfer(to - 1, from - 1, amount);
+
+				    if (transferred) {
+					table.setModel(new DefaultTableModel(mngr.displayData, columnNames));
+				    }
+				    else {
+					JOptionPane.showMessageDialog(null, "Invalid transfer", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				    }
+				}
+				catch (NumberFormatException nfe) {
+				    JOptionPane.showMessageDialog(null, "Numbers ONLY in TO, FROM and AMMOUNT"
+				    		+ " fields", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+		}
 
 		});
 		contentPane.add(transferButton, constraints);
@@ -138,9 +141,18 @@ public class AccountTransactionLayout extends JFrame {
 
 	public static void main(String[] args) {
 		JFrame frame = new AccountTransactionLayout();
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+	}
+	
+	public JTextField getToField(){
+		return toField;
+	}
+	
+	public JTextField getFromField(){
+		return fromField;
 	}
 
 	public JTextField getAmountField() {
