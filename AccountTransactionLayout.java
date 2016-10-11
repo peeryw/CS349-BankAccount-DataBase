@@ -11,15 +11,15 @@ public class AccountTransactionLayout extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private JTable table;
-	private JTextField amountField = new JTextField("",8);
-	private JTextField fromField;
-	private JTextField toField;
+	JTable table;
+	JTextField amountField = new JTextField("", 8);
+	JTextField fromField;
+	JTextField toField;
+	static SQLInfo temp;
 
 	private String[] columnNames = { "Account ID", "Account Name", "Balance" };
 	private Object[][] data = { { new Integer(3), "Savings", new Integer(500) },
-			{ new Integer(4), "Checking", new Integer(270) },
-			{ new Integer(5), "Retirement", new Integer(1000)}};
+			{ new Integer(4), "Checking", new Integer(300) }, { new Integer(5), "Retirement", new Integer(10000) } };
 
 	public AccountTransactionLayout() {
 		Container contentPane = getContentPane();
@@ -103,63 +103,45 @@ public class AccountTransactionLayout extends JFrame {
 		JButton transferButton = new JButton("Transfer");
 		transferButton.addActionListener(new ActionListener() {
 
+			@SuppressWarnings("null")
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				String toString, fromString, amountString;
 				int to, from, amount;
-				Boolean transferred;
+
 				AccountManager mngr = null;
 
 				try {
-				    toString = toField.getText();
-				    fromString = fromField.getText();
-				    amountString = amountField.getText();
+					toString = toField.getText();
+					fromString = fromField.getText();
+					amountString = amountField.getText();
 
-				    to = Integer.parseInt(toString);
-				    from = Integer.parseInt(fromString);
-				    amount = Integer.parseInt(amountString);
+					to = Integer.parseInt(toString);
+					from = Integer.parseInt(fromString);
+					amount = Integer.parseInt(amountString);
 
-				    transferred =  mngr.transfer(to - 1, from - 1, amount);
-
-				    if (transferred) {
-					table.setModel(new DefaultTableModel(mngr.displayData, columnNames));
-				    }
-				    else {
-					JOptionPane.showMessageDialog(null, "Invalid transfer", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				    }
+					mngr.transfer(from, to, amount);
 				}
+
 				catch (NumberFormatException nfe) {
-				    JOptionPane.showMessageDialog(null, "Numbers ONLY in TO, FROM and AMMOUNT"
-				    		+ " fields", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Numbers ONLY in TO, FROM and AMMOUNT" + " fields", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
-		}
+			}
 
 		});
 		contentPane.add(transferButton, constraints);
 	}
 
 	public static void main(String[] args) {
+
 		JFrame frame = new AccountTransactionLayout();
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-	}
-	
-	public JTextField getToField(){
-		return toField;
-	}
-	
-	public JTextField getFromField(){
-		return fromField;
-	}
-
-	public JTextField getAmountField() {
-		return amountField;
-	}
-
-	public void setAmountField(JTextField amountField) {
-		this.amountField = amountField;
+		
 	}
 }
+
+	

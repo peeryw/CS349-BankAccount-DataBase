@@ -1,27 +1,53 @@
 package CS349BankAccount;
 
+import java.sql.*;
+
 import javax.swing.JOptionPane;
 
+
 public class AccountManager {
-	
-	protected Object[][] displayData;
-	AccountTransactionLayout info;
 
-	public AccountManager (){
-		;
-	}
+	private java.sql.Connection con;
+	private java.sql.Statement stmt;	
 
-	public Boolean transfer(int i, int j, int amount) {
-		String toAmount = toField.getAmountField();
-		String fromAmount = j;
-		String transfAmount = info.getAmountField();
+	public Boolean transfer(int fromAccnt, int toAccount, int amount){
 		
-		if(transfAmount.getAmountField() < 0 fromAcount.getFromField() ){
-			String accountID = "1";
-			JOptionPane.showMessageDialog(null, "Amount excedes balance of" + accountID  , "Error", JOptionPane.ERROR_MESSAGE);
+			try {
+				con.setAutoCommit(false);
+				int debt = (getBalance(fromAccnt) - amount);
+				int credit = (getBalance(toAccount) + amount);
+
+				String debit = SQLInfo.setBalance(fromAccnt, debt);
+				String credits = SQLInfo.setBalance(toAccount, credit);
+
+				stmt.executeUpdate(debit);
+				stmt.executeUpdate(credits);
+				con.commit();
+				con.setAutoCommit(true);
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+				return false;
+			}
+			return true;
+			
+	}
+	public int getBalance(int accntNum){
+		int balance = 0;
+		ResultSet temp;
+		String tableBalance = SQLInfo.getBalance(accntNum);
+		try {
+			temp = stmt.executeQuery(tableBalance);
+			temp.next();
+			balance = temp.getInt(1);
+		} catch (SQLException err) {
+		    JOptionPane.showMessageDialog(null, err.toString(), 
+		    		"Request contained an error.", JOptionPane.ERROR_MESSAGE);
 		}
-		
-		return null;		
+		return balance;
 	}
-
 }
+
+
+
+	
